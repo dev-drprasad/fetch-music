@@ -1,0 +1,42 @@
+{
+  "name": "fetch-music",
+  "version": "0.0.1",
+  "description": "personal react app to download music",
+  "main": "index.js",
+  "scripts": {
+    "dev": "webpack-dev-server",
+    "build": "webpack"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dev-drprasad/fetch-music.git"
+  },
+  "keywords": [
+    "music",
+    "reactjs"
+  ],
+  "author": "REDDY PRASAD",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dev-drprasad/fetch-music/issues"
+  },
+  "homepage": "https://github.com/dev-drprasad/fetch-music#readme",
+  "dependencies": {
+    "react": "^16.0.0",
+    "react-dom": "^16.0.0"
+  },
+  "optionalDependencies": {
+    "fsevents": "*"
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.2",
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-react": "^6.24.1",
+    "css-loader": "^0.28.7",
+    "extract-text-webpack-plugin": "^3.0.2",
+    "html-webpack-plugin": "^2.30.1",
+    "webpack": "^3.8.1",
+    "webpack-dev-server": "^2.9.4"
+  }
+}
