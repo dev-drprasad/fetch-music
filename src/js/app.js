@@ -7,7 +7,7 @@ export default class Hello extends Component {
   render() {
     return (
       <div>
-        Fetch Music...
+        Fetch Music
       </div>
     );
   }
