@@ -16,15 +16,15 @@ const paths = {
 module.exports = {
   entry: path.join(paths.JS, 'app.js'),
   output: {
-    path: paths.BUILD,
-    filename: 'app.bundle.js',
+    path: `${paths.BUILD}`,
+    filename: 'static/js/app.bundle.js',
   },
   // Tell webpack to use html plugin
   plugins: [
     new HtmlWebpackPlugin({
       template: path.join(paths.SRC, 'index.html'),
     }),
-    new ExtractTextPlugin('style.bundle.css'), // CSS will be extracted to this bundle file -> ADDED IN THIS STEP
+    new ExtractTextPlugin('static/css/style.bundle.css'), // CSS will be extracted to this bundle file -> ADDED IN THIS STEP
   ],
   // Loaders configuration
   // We are telling webpack to use "babel-loader" for .js and .jsx files
