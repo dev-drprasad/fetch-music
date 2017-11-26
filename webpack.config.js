@@ -1,6 +1,7 @@
 // We are using node's native package 'path'
 // https://nodejs.org/api/path.html
 const path = require('path');
+const webpack = require('webpack');
 
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin'); //  -> ADDED IN THIS STEP
@@ -25,6 +26,12 @@ module.exports = {
       template: path.join(paths.SRC, 'index.html'),
     }),
     new ExtractTextPlugin('static/css/style.bundle.css'), // CSS will be extracted to this bundle file -> ADDED IN THIS STEP
+    new webpack.DefinePlugin({
+      'process.env': {
+        NODE_ENV: JSON.stringify(process.env.NODE_ENV),
+        API_HOST: JSON.stringify(process.env.API_HOST),
+      },
+    }),
   ],
   // Loaders configuration
   // We are telling webpack to use "babel-loader" for .js and .jsx files

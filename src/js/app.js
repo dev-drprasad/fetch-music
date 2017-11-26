@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import { render } from 'react-dom';
 import { saveAs } from 'file-saver';
 
+import { API_HOST } from './vars'
+
 import '../css/style.css';
 
 export default class App extends Component {
@@ -13,6 +15,8 @@ export default class App extends Component {
       selectedItem: null,
     };
 
+    console.log(process.env);
+
     this.handleSearchTermChange = this.handleSearchTermChange.bind(this);
     this.handleSearch = this.handleSearch.bind(this);
   }
@@ -20,7 +24,7 @@ export default class App extends Component {
   handleSearch(event) {
     event.preventDefault();
     const { searchTerm } = this.state;
-    fetch(`http://localhost:5001/api/search?q=${searchTerm}`)
+    fetch(`http://${API_HOST}/api/search?q=${searchTerm}`)
     .then((response) => response.json()
     .then((data) => {
       console.log(data);
@@ -42,7 +46,7 @@ export default class App extends Component {
       selectedItem: item,
     });
 
-    fetch(`http://localhost:5001/api/song?id=${url}`)
+    fetch(`http://${API_HOST}/api/song?id=${url}`)
     .then((response) => response.blob()
     )
     .then((blob) => {
