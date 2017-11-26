@@ -1,7 +1,6 @@
 # serve.py
 import binascii
 from pprint import pprint
-from StringIO import StringIO
 from flask import Flask, render_template, jsonify, request, send_file
 from flask_cors import CORS
 from mutagen.id3 import ID3, TIT2, TALB, TPE1, COMM, TCON, APIC
@@ -63,7 +62,7 @@ def fetch_song_location():
 
         mpl_data_params = dict(id=encrypted_id, jsoncallback='', r='mpl', format='json')
         src_response = requests.get(MPL_DATA_API, headers=MPL_HEADERS, params=mpl_data_params)
-        print src_response.content
+        print(src_response.content)
         song_details = src_response.json().get('song', {}) if src_response.content else {}
         response['song'] = song_details
         song_title = song_details.get('title')
@@ -85,7 +84,7 @@ def fetch_song_location():
         with open('image.jpg', 'wb') as f:
             f.write(image_response.content)
         track_number = track_info.get('track_number')
-        print track_number, track_album, track_artists, track_image
+        # print track_number, track_album, track_artists, track_image
         audio = ID3(song_title + '.mp3')
         audio.add(TIT2(encoding=3, text=track_title))
         audio.add(TALB(encoding=3, text=track_album))
@@ -109,4 +108,4 @@ def fetch_song_location():
     return jsonify(response)
 # run the application
 if __name__ == "__main__":
-    app.run(debug=True, host='0.0.0.0', port=5001)
+    app.run(debug=True, host='0.0.0.0', port=5000)

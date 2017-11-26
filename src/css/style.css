@@ -1,7 +1,51 @@
 body {
   background: #f9fafb;
-  font-family: Helvetica, Arial, sans-serif;
+  font-family: "lucida sans", sans-serif;
   font-size: 16px;
   margin: 0;
   padding: 30px;
 }
+
+form {
+  height: 40px;
+  line-height: 40px;
+}
+
+input[name="search"] {
+  width: 400px;
+  height: 30px;
+  font-size: 1.1em;
+  vertical-align: middle;
+  padding: 5px 10px;
+  color: #5b5b5b;
+  background-image: -webkit-linear-gradient(top, rgba(0, 0, 0, 0.02) 0%, rgba(255, 255, 255, 0.02) 50%);
+  -moz-border-radius: 4px 0 0 4px;
+  -webkit-border-radius: 4px 0 0 4px;
+  border-radius: 3px 0 0 3px;
+  border: 1px solid rgba(0, 0, 0, 0.16);
+}
+
+input[name="search"]:focus {
+  outline: 0;
+  border: 1px solid #328cca;
+}
+
+button {
+  height: 42px;
+  background-image: -webkit-linear-gradient(top, #3798db, #2c7cd2);
+  vertical-align: middle;
+  font-size: 1.2em;
+  color: #ffffff;
+  padding: 5px 15px;
+  margin-left: -5px;
+  -moz-border-radius: 0 4px 4px 0;
+  -webkit-border-radius: 0 4px 4px 0;
+  border-radius: 0 4px 4px 0;
+  border: 1px solid #2c7cd2;
+}
+
+/*
+1. http://www.vikaskbh.com/how-to-style-html-form-fields-using-css-3-linear-gradient-function/
+2. https://www.mageewp.com/style-your-wordpress-themes-comment-form.html
+3. https://stackoverflow.com/questions/3997983/how-to-vertically-align-2-different-sizes-of-text
+*/
