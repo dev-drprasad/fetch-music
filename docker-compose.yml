@@ -4,8 +4,11 @@ services:
     build:
       context: .
       dockerfile: Dockerfile-backend
+    environment:
+      - "SPOTIPY_CLIENT_SECRET=${SPOTIPY_CLIENT_SECRET}"
+      - "SPOTIPY_CLIENT_ID=${SPOTIPY_CLIENT_ID}"
     ports:
-      - 5001:5000
+      - 5001:8081
 
   frontend:
     build:

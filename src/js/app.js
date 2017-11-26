@@ -61,6 +61,7 @@ export default class App extends Component {
           <h3>{item.title}</h3>
           <img src={item.albumart} />
           <p>{item.artist}</p>
+          <p>{item.link}</p>
         </div>
       );
     });

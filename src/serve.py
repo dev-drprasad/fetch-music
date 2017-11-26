@@ -62,24 +62,27 @@ def fetch_song_location():
 
         mpl_data_params = dict(id=encrypted_id, jsoncallback='', r='mpl', format='json')
         src_response = requests.get(MPL_DATA_API, headers=MPL_HEADERS, params=mpl_data_params)
-        print(src_response.content)
+        # print(src_response.content)
         song_details = src_response.json().get('song', {}) if src_response.content else {}
         response['song'] = song_details
         song_title = song_details.get('title')
         audio_response = requests.get(song_details.get('url'))
         print('writing audio file')
-        with open(song_title + '.mp3', 'w') as file:
+        with open(song_title + '.mp3', 'wb') as file:
             file.write(audio_response.content)
 
         from spotipy.oauth2 import SpotifyClientCredentials
         client_credentials_manager = SpotifyClientCredentials()
         spotify = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
-        spotify_results = spotify.search(q=song_details.get('title', '') + ' ' + song_details.get('artist', ''), type='track')
+        q = song_details.get('title', '') + ' ' + song_details.get('artist').split()[0] if song_details.get('artist').split() else ''
+        print('spotify q: ' + q)
+        spotify_results = spotify.search(q=q, type='track')
         track_info = spotify_results['tracks']['items'][0]
         track_title = track_info.get('name')
         track_album = track_info.get('album').get('name')
         track_artists = track_info.get('artists')[0].get('name')
         track_image = track_info.get('album').get('images')[0].get('url')
+        print('image: ' + track_image)
         image_response = requests.get(track_image)
         with open('image.jpg', 'wb') as f:
             f.write(image_response.content)
@@ -108,4 +111,4 @@ def fetch_song_location():
     return jsonify(response)
 # run the application
 if __name__ == "__main__":
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=True, host='0.0.0.0', port=8081)
