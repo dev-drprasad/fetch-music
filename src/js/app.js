@@ -59,31 +59,19 @@ export default class App extends Component {
   }
 
   renderSearchResults() {
+    if (this.state.results.length === 0) return <div>no results</div>;
     return this.state.results.map((item, i) => {
       return (
-        <div key={i} onClick={() => this.handleSongSelection(item)}>
-          <h3>{item.title}</h3>
-          <img src={item.albumart} />
-          <p>{item.artist}</p>
-          <p>{item.link}</p>
+        <div key={i} style={{ display: 'flex', margin: 10, backgroundColor: '#fff' }}>
+          <div style={{ background: `url(${item.albumart})`, width: 120, height: 120 }} />
+          <div style={{ padding: 10 }}>
+            <h3 onClick={() => this.handleSongSelection(item)}><a href="#">{item.title}</a></h3>
+            <p>{item.artist}</p>
+            <p>{item.link}</p>
+          </div>
         </div>
       );
     });
-  }
-
-  renderSongDetails() {
-    if (this.state.song) {
-      const { title, url, artist, albumart } = this.state.song;
-      return (
-        <div>
-          <h3>{title}</h3>
-          <img src={albumart} />
-          <p>{artist}</p>
-          <button onClick={() => this.handleDownload()}>download</button>
-        </div>
-      );
-    }
-    return <div></div>;
   }
   // BQBGMapv0oYtZrr9Ogtv6x3BQERsCv3alIOZuWw8d5PMXXXyTIW5bp1SYX0TOmR3C9BX6XIGJOro2LMIBDC_G17M22dvq1yky0vdtAYEYmhT
   render() {
@@ -93,8 +81,7 @@ export default class App extends Component {
           <input type="text" name="search" onChange={this.handleSearchTermChange} value={this.state.searchTerm} />
           <button type="submit">search</button>
         </form>
-        <div>{this.renderSongDetails()}</div>
-        <div>
+        <div style={{ margin: 10 }}>
           {this.renderSearchResults()}
         </div>
       </div>

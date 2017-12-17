@@ -1,3 +1,7 @@
+* {
+  margin: 0;
+}
+
 body {
   background: #f9fafb;
   font-family: "lucida sans", sans-serif;
@@ -42,6 +46,7 @@ button {
   -webkit-border-radius: 0 4px 4px 0;
   border-radius: 0 4px 4px 0;
   border: 1px solid #2c7cd2;
+  cursor: pointer;
 }
 
 /*

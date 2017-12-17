@@ -1,12 +1,14 @@
 # serve.py
 import binascii
+import json
 from pprint import pprint
+import re
+
 from flask import Flask, render_template, jsonify, request, send_file
 from flask_cors import CORS
 from mutagen.id3 import ID3, TIT2, TALB, TPE1, COMM, TCON, APIC
 import requests
 import spotipy
-
 MPL_SEARCH_API = 'http://databrainz.com/api/search_api.cgi'
 MPL_DATA_API = 'http://databrainz.com/api/data_api_new.cgi'
 MPL_HEADERS = {
@@ -35,10 +37,19 @@ def search():
     if 'q' in request.args:
         search_term = request.args.get('q')
 
-        mpl_search_params = dict(qry=search_term, jsoncallback='', format='json', mh=50, where='mpl')
+        mpl_search_params = dict(
+            qry=search_term,
+            jsoncallback='jQuery1111019191608358321144_1513422008666',
+            format='json', mh=50, where='mpl'
+        )
         search_response = requests.get(MPL_SEARCH_API, headers=MPL_HEADERS, params=mpl_search_params)
-        results = search_response.json().get('results', []) if search_response.content else []
-
+        content = search_response.text
+        if content:
+            match = ''.join(re.findall(r'({.*})', content, re.DOTALL))
+            json_response = json.loads(match)
+            results = json_response.get('results', []) if search_response.content else []
+        else:
+            results = []
         response['results'] = results
         json_response = jsonify(response)
         json_response.status_code = 200
@@ -60,10 +71,15 @@ def fetch_song_location():
 
         print('hitting ' + MPL_DATA_API.format(encrypted_id))
 
-        mpl_data_params = dict(id=encrypted_id, jsoncallback='', r='mpl', format='json')
+        mpl_data_params = dict(id=encrypted_id, jsoncallback='jQuery1111019191608358321144_1513422008666',
+        r='mpl',
+        format='json')
         src_response = requests.get(MPL_DATA_API, headers=MPL_HEADERS, params=mpl_data_params)
         # print(src_response.content)
-        song_details = src_response.json().get('song', {}) if src_response.content else {}
+        content = src_response.text
+        match = ','.join(re.findall(r'({.*})', content))
+        json_response = json.loads(match)
+        song_details = json_response.get('song', {}) if src_response.content else {}
         response['song'] = song_details
         song_title = song_details.get('title')
         audio_response = requests.get(song_details.get('url'))
