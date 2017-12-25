@@ -76,12 +76,12 @@ export default class App extends Component {
   // BQBGMapv0oYtZrr9Ogtv6x3BQERsCv3alIOZuWw8d5PMXXXyTIW5bp1SYX0TOmR3C9BX6XIGJOro2LMIBDC_G17M22dvq1yky0vdtAYEYmhT
   render() {
     return (
-      <div>
+      <div style={{ width: '80%', margin: '0 auto' }}>
         <form onSubmit={this.handleSearch}>
           <input type="text" name="search" onChange={this.handleSearchTermChange} value={this.state.searchTerm} />
           <button type="submit">search</button>
         </form>
-        <div style={{ margin: 10 }}>
+        <div style={{ margin: 10, textAlign: 'center' }}>
           {this.renderSearchResults()}
         </div>
       </div>

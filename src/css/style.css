@@ -1,5 +1,6 @@
 * {
   margin: 0;
+  box-sizing: border-box;
 }
 
 body {
@@ -11,13 +12,14 @@ body {
 }
 
 form {
+  position: relative;
   height: 40px;
   line-height: 40px;
 }
 
 input[name="search"] {
-  width: 400px;
-  height: 30px;
+  width: 99%;
+  height: 42px;
   font-size: 1.1em;
   vertical-align: middle;
   padding: 5px 10px;
@@ -35,8 +37,10 @@ input[name="search"]:focus {
 }
 
 button {
+  position: absolute;
+  right: 0;
   height: 42px;
-  background-image: -webkit-linear-gradient(top, #3798db, #2c7cd2);
+  background-image: -webkit-linear-gradient(top, #2c7cd2, #2196f3);
   vertical-align: middle;
   font-size: 1.2em;
   color: #ffffff;
@@ -45,7 +49,7 @@ button {
   -moz-border-radius: 0 4px 4px 0;
   -webkit-border-radius: 0 4px 4px 0;
   border-radius: 0 4px 4px 0;
-  border: 1px solid #2c7cd2;
+  border: 1px solid #2196f3;
   cursor: pointer;
 }
 
