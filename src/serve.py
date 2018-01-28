@@ -181,7 +181,7 @@ def fetch_song_location():
     return jsonify(response)
 # run the application
 if __name__ == "__main__":
-    app.run(debug=True, host='0.0.0.0', port=8081)
+    app.run(debug=True, host='0.0.0.0', port=8081, threaded=True)
 
 # References:
 # https://docs.python.org/3/library/io.html
