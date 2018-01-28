@@ -10,6 +10,7 @@ import re
 from flask import Flask, Response,render_template, jsonify, request, send_file
 from flask_cors import CORS
 from mutagen.id3 import ID3, TIT2, TALB, TPE1, COMM, TCON, APIC
+from mutagen.id3._util import error
 import requests
 import spotipy
 MPL_SEARCH_API = 'http://databrainz.com/api/search_api.cgi'
@@ -30,6 +31,14 @@ def xorWord(text, key):
     return binascii.hexlify(bytes_string.encode('utf8'))
 
 def add_metadata(chunk, song_details):
+    io_chunk = BytesIO(chunk)
+    is_chunk_enough = False
+    try:
+        audio = ID3(io_chunk)
+        is_chunk_enough = True
+    except error:
+        return is_chunk_enough, None
+    
     app.logger.info('adding new metadata...')
     from spotipy.oauth2 import SpotifyClientCredentials
     client_credentials_manager = SpotifyClientCredentials()
@@ -41,27 +50,40 @@ def add_metadata(chunk, song_details):
     track_title = track_info.get('name')
     track_album = track_info.get('album').get('name')
     track_artists = track_info.get('artists')[0].get('name')
-    track_image = track_info.get('album').get('images')[0].get('url')
-    app.logger.info('image: ' + track_image)
-    image_response = urlopen(track_image)
-    image_bytes = image_response.read()
+    
+    
     track_number = track_info.get('track_number')
     # app.logger.info track_number, track_album, track_artists, track_image
     # audio = ID3(song_title + '.mp3')
-    io_chunk = BytesIO(chunk)
-    audio = ID3(io_chunk)
+    
     audio.add(TIT2(encoding=3, text=track_title))
     audio.add(TALB(encoding=3, text=track_album))
     audio.add(TPE1(encoding=3, text=track_artists))
     audio.add(TCON(encoding=3, text=str(track_number)))
     audio.add(COMM(encoding=3, lang=u'eng', desc='', text=u''))
+    
+
+    # artist_id = track_info.get('artists')[0].get('id')
+    # if artist_id:
+    #     app.logger.info('artist name: {}, artist id: {}'.format(track_artists, artist_id))
+    #     artist_info = spotify.artist(artist_id)
+    #     artist_image_url = artist_info.get('images')[2].get('url')
+    #     app.logger.info('artist image: {}'.format(artist_image_url))
+    #     artist_image_resp = urlopen(artist_image_url)
+    #     artist_image_bytes = artist_image_resp.read()
+    #     audio.add(APIC(3, 'image/png', 7, '', artist_image_bytes))
+    track_image = track_info.get('album').get('images')[0].get('url')
+    app.logger.info('image: ' + track_image)
+    image_response = urlopen(track_image)
+    image_bytes = image_response.read()
     audio.add(APIC(3, 'image/png', 3, '', image_bytes))
+    
     io_chunk.seek(0)
     old_size, new_data_bytes = audio.new_data(io_chunk)
     if old_size > 300000:
         app.logger.warning('old size greater than 300KB. value: {}'.format(old_size))
     app.logger.info('old size: {}'.format(old_size))
-    return new_data_bytes + chunk[old_size:]
+    return is_chunk_enough, new_data_bytes + chunk[old_size:]
 
 # a route which servers index page
 @app.route('/')
@@ -124,13 +146,22 @@ def fetch_song_location():
         # with open(song_title + '.mp3', 'wb') as file:
         #     file.write(audio_response.content)
         def generate(url):
+            app.logger.info('audio link: {}'.format(url))
             audio_response = urlopen(url)
-            app.logger.info('getting first 350KB')
-            chunk = audio_response.read(1024 * 350)
-            chunk = add_metadata(chunk, song_details)
-            while chunk:
-                yield chunk
-                chunk = audio_response.read(1024 * 100)
+            # app.logger.info('getting first 350KB')
+            # chunk = audio_response.read(1024 * 350)
+            chunk = b''
+            processed_chunk = None
+            while True:
+                app.logger.info('read chunk size of 200KB')
+                chunk += audio_response.read(1024 * 200)
+                is_chunk_enough, processed_chunk = add_metadata(
+                    chunk, song_details)
+                if is_chunk_enough:
+                    break
+            while processed_chunk:
+                yield processed_chunk
+                processed_chunk = audio_response.read(1024 * 100)
 
         json_response = jsonify(response)
         json_response.status_code = 200

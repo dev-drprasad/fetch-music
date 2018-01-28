@@ -59,15 +59,19 @@ export default class App extends Component {
   }
 
   renderSearchResults() {
-    if (this.state.results.length === 0) return <div>no results</div>;
+    if (this.state.results.length === 0) return <div style={{ textAlign: 'center' }}>no results</div>;
     return this.state.results.map((item, i) => {
       return (
         <div key={i} className="song-card">
-          <div style={{ background: `url(${item.albumart})`, width: 120, height: 120 }} />
-          <div style={{ padding: 10 }}>
-            <h3><a href={`http://${API_HOST}/api/song?id=${item.url}`} target="_blank">{item.title}</a></h3>
-            <p>{item.artist}</p>
-            <p>{item.link}</p>
+          <div className="image" style={{ background: `url(${item.albumart})`, width: 120, height: 120 }} />
+          <div className="info" style={{ padding: 10 }}>
+            <div className="main-info">
+              <h3 className="title"><a href={`http://${API_HOST}/api/song?id=${item.url}`} target="_blank">{item.title}</a></h3>
+              <p className="artists">{item.artist}</p>
+            </div>
+            <div className="extra-info">
+              <p className="server">{item.link}</p>
+            </div>
           </div>
         </div>
       );
@@ -76,7 +80,7 @@ export default class App extends Component {
   // BQBGMapv0oYtZrr9Ogtv6x3BQERsCv3alIOZuWw8d5PMXXXyTIW5bp1SYX0TOmR3C9BX6XIGJOro2LMIBDC_G17M22dvq1yky0vdtAYEYmhT
   render() {
     return (
-      <div style={{ width: '80%', margin: '0 auto' }}>
+      <div className="main">
         <form onSubmit={this.handleSearch}>
           <input type="text" name="search" onChange={this.handleSearchTermChange} value={this.state.searchTerm} />
           <button type="submit">search</button>

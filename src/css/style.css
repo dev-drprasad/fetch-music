@@ -7,8 +7,26 @@ body {
   background: #f9fafb;
   font-family: "lucida sans", sans-serif;
   font-size: 16px;
+  color: #5b5b5b;
   margin: 0;
-  padding: 30px;
+}
+
+a{
+  text-decoration: none;
+  color: #2196f3;
+}
+
+.main {
+  width: 80%;
+  margin: 0 auto;
+  padding: 30px 15px;
+}
+
+@media only screen and (max-width: 480px) {
+  .main {
+    width: 100%;
+    padding: 20px 10px;
+  }
 }
 
 form {
@@ -25,8 +43,8 @@ input[name="search"] {
   padding: 5px 10px;
   color: #5b5b5b;
   background-image: -webkit-linear-gradient(top, rgba(0, 0, 0, 0.02) 0%, rgba(255, 255, 255, 0.02) 50%);
-  -moz-border-radius: 4px 0 0 4px;
-  -webkit-border-radius: 4px 0 0 4px;
+  -moz-border-radius: 3px 0 0 3px;
+  -webkit-border-radius: 3px 0 0 3px;
   border-radius: 3px 0 0 3px;
   border: 1px solid rgba(0, 0, 0, 0.16);
 }
@@ -54,14 +72,30 @@ button {
 }
 
 .song-cards {
-  margin: 10px 0;
-  text-align: center;
+  margin-top: 25px;
 }
 
 .song-card {
   display: flex;
   margin: 10px 0;
   background-color: #fff;
+  box-shadow: 1px 1px 5px #d5d5d5;
+  position: relative;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.song-card .info .main-info {
+  height: 85%;
+}
+
+.artists {
+  font-size: 14px;
+}
+
+.server {
+  font-size: 12px;
+  font-weight: 700;
 }
 
 /*
