@@ -1,10 +1,12 @@
 # serve.py
 import binascii
 import json
+from io import BytesIO
 from pprint import pprint
+from urllib.request import urlopen
 import re
 
-from flask import Flask, render_template, jsonify, request, send_file
+from flask import Flask, Response,render_template, jsonify, request, send_file
 from flask_cors import CORS
 from mutagen.id3 import ID3, TIT2, TALB, TPE1, COMM, TCON, APIC
 import requests
@@ -25,6 +27,38 @@ def xorWord(text, key):
     # https://stackoverflow.com/questions/6624453/whats-the-correct-way-to-convert-bytes-to-a-hex-string-in-python-3
     bytes_string = ''.join(chr(ord(s)^ord(c)) for s,c in zip(text,key*100))
     return binascii.hexlify(bytes_string.encode('utf8'))
+
+def add_metadata(chunk, song_details):
+    print('adding new metadata...')
+    from spotipy.oauth2 import SpotifyClientCredentials
+    client_credentials_manager = SpotifyClientCredentials()
+    spotify = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
+    q = song_details.get('title', '') + ' ' + song_details.get('artist').split()[0] if song_details.get('artist').split() else ''
+    print('spotify q: ' + q)
+    spotify_results = spotify.search(q=q, type='track')
+    track_info = spotify_results['tracks']['items'][0]
+    track_title = track_info.get('name')
+    track_album = track_info.get('album').get('name')
+    track_artists = track_info.get('artists')[0].get('name')
+    track_image = track_info.get('album').get('images')[0].get('url')
+    print('image: ' + track_image)
+    image_response = urlopen(track_image)
+    image_bytes = image_response.read()
+    track_number = track_info.get('track_number')
+    # print track_number, track_album, track_artists, track_image
+    # audio = ID3(song_title + '.mp3')
+    io_chunk = BytesIO(chunk)
+    audio = ID3(io_chunk)
+    audio.add(TIT2(encoding=3, text=track_title))
+    audio.add(TALB(encoding=3, text=track_album))
+    audio.add(TPE1(encoding=3, text=track_artists))
+    audio.add(TCON(encoding=3, text=str(track_number)))
+    audio.add(COMM(encoding=3, lang=u'eng', desc='', text=u''))
+    audio.add(APIC(3, 'image/png', 3, '', image_bytes))
+    io_chunk.seek(0)
+    old_size, new_data_bytes = audio.new_data(io_chunk)
+    print('old size:', old_size)
+    return new_data_bytes + chunk[old_size:]
 
 # a route which servers index page
 @app.route('/')
@@ -82,42 +116,28 @@ def fetch_song_location():
         song_details = json_response.get('song', {}) if src_response.content else {}
         response['song'] = song_details
         song_title = song_details.get('title')
-        audio_response = requests.get(song_details.get('url'))
-        print('writing audio file')
-        with open(song_title + '.mp3', 'wb') as file:
-            file.write(audio_response.content)
+        # audio_response = requests.get(song_details.get('url'))
+        # print('writing audio file')
+        # with open(song_title + '.mp3', 'wb') as file:
+        #     file.write(audio_response.content)
+        def generate(url):
+            audio_response = urlopen(url)
+            print('getting first 512KB')
+            chunk = audio_response.read(1024 * 512)
+            chunk = add_metadata(chunk, song_details)
+            while chunk:
+                yield chunk
+                chunk = audio_response.read(1024 * 100)
 
-        from spotipy.oauth2 import SpotifyClientCredentials
-        client_credentials_manager = SpotifyClientCredentials()
-        spotify = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
-        q = song_details.get('title', '') + ' ' + song_details.get('artist').split()[0] if song_details.get('artist').split() else ''
-        print('spotify q: ' + q)
-        spotify_results = spotify.search(q=q, type='track')
-        track_info = spotify_results['tracks']['items'][0]
-        track_title = track_info.get('name')
-        track_album = track_info.get('album').get('name')
-        track_artists = track_info.get('artists')[0].get('name')
-        track_image = track_info.get('album').get('images')[0].get('url')
-        print('image: ' + track_image)
-        image_response = requests.get(track_image)
-        with open('image.jpg', 'wb') as f:
-            f.write(image_response.content)
-        track_number = track_info.get('track_number')
-        # print track_number, track_album, track_artists, track_image
-        audio = ID3(song_title + '.mp3')
-        audio.add(TIT2(encoding=3, text=track_title))
-        audio.add(TALB(encoding=3, text=track_album))
-        audio.add(TPE1(encoding=3, text=track_artists))
-        audio.add(TCON(encoding=3, text=str(track_number)))
-        audio.add(COMM(encoding=3, lang=u'eng', desc='', text=u''))
-        with open('image.jpg', 'rb') as f:
-            image_data = f.read()
-            audio.add(APIC(3, 'image/jpeg', 3, 'Cover', image_data))
-        audio.save()
         json_response = jsonify(response)
         json_response.status_code = 200
         print('returning file')
-        return send_file('../' + song_title + '.mp3')
+        # return send_file('../' + song_title + '.mp3')
+        return Response(
+            generate(song_details.get('url')),
+            mimetype='audio/mpeg3',
+            headers={"Content-Disposition":'attachment;filename={}.mp3'.format(song_title)}
+        )
     else:
         response['error'] = 'no `id` parameter found in url'
         json_response = jsonify(response)
@@ -128,3 +148,9 @@ def fetch_song_location():
 # run the application
 if __name__ == "__main__":
     app.run(debug=True, host='0.0.0.0', port=8081)
+
+# References:
+# https://docs.python.org/3/library/io.html
+# https://stackoverflow.com/questions/1517616/stream-large-binary-files-with-urllib2-to-file
+# https://stackoverflow.com/questions/34349699/when-streaming-response-in-flask-file-unplayable
+# https://gist.github.com/hosackm/289814198f43976aff9b

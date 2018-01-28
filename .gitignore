@@ -2,6 +2,8 @@
 .vscode/
 .vagrant
 node_modules/
+*.pyc
+__pycache__
 build
 .DS_Store
 *.tgz
