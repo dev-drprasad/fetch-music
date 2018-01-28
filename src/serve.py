@@ -1,6 +1,7 @@
 # serve.py
 import binascii
 import json
+import logging
 from io import BytesIO
 from pprint import pprint
 from urllib.request import urlopen
@@ -29,23 +30,23 @@ def xorWord(text, key):
     return binascii.hexlify(bytes_string.encode('utf8'))
 
 def add_metadata(chunk, song_details):
-    print('adding new metadata...')
+    app.logger.info('adding new metadata...')
     from spotipy.oauth2 import SpotifyClientCredentials
     client_credentials_manager = SpotifyClientCredentials()
     spotify = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
     q = song_details.get('title', '') + ' ' + song_details.get('artist').split()[0] if song_details.get('artist').split() else ''
-    print('spotify q: ' + q)
+    app.logger.info('spotify q: ' + q)
     spotify_results = spotify.search(q=q, type='track')
     track_info = spotify_results['tracks']['items'][0]
     track_title = track_info.get('name')
     track_album = track_info.get('album').get('name')
     track_artists = track_info.get('artists')[0].get('name')
     track_image = track_info.get('album').get('images')[0].get('url')
-    print('image: ' + track_image)
+    app.logger.info('image: ' + track_image)
     image_response = urlopen(track_image)
     image_bytes = image_response.read()
     track_number = track_info.get('track_number')
-    # print track_number, track_album, track_artists, track_image
+    # app.logger.info track_number, track_album, track_artists, track_image
     # audio = ID3(song_title + '.mp3')
     io_chunk = BytesIO(chunk)
     audio = ID3(io_chunk)
@@ -57,7 +58,9 @@ def add_metadata(chunk, song_details):
     audio.add(APIC(3, 'image/png', 3, '', image_bytes))
     io_chunk.seek(0)
     old_size, new_data_bytes = audio.new_data(io_chunk)
-    print('old size:', old_size)
+    if old_size > 300000:
+        app.logger.warning('old size greater than 300KB. value: {}'.format(old_size))
+    app.logger.info('old size: {}'.format(old_size))
     return new_data_bytes + chunk[old_size:]
 
 # a route which servers index page
@@ -103,13 +106,13 @@ def fetch_song_location():
         song_id = request.args.get('id')
         encrypted_id = xorWord(song_id, 'mpl')
 
-        print('hitting ' + MPL_DATA_API.format(encrypted_id))
+        app.logger.info('hitting ' + MPL_DATA_API.format(encrypted_id))
 
         mpl_data_params = dict(id=encrypted_id, jsoncallback='jQuery1111019191608358321144_1513422008666',
         r='mpl',
         format='json')
         src_response = requests.get(MPL_DATA_API, headers=MPL_HEADERS, params=mpl_data_params)
-        # print(src_response.content)
+        # app.logger.info(src_response.content)
         content = src_response.text
         match = ','.join(re.findall(r'({.*})', content))
         json_response = json.loads(match)
@@ -117,13 +120,13 @@ def fetch_song_location():
         response['song'] = song_details
         song_title = song_details.get('title')
         # audio_response = requests.get(song_details.get('url'))
-        # print('writing audio file')
+        # app.logger.info('writing audio file')
         # with open(song_title + '.mp3', 'wb') as file:
         #     file.write(audio_response.content)
         def generate(url):
             audio_response = urlopen(url)
-            print('getting first 512KB')
-            chunk = audio_response.read(1024 * 512)
+            app.logger.info('getting first 350KB')
+            chunk = audio_response.read(1024 * 350)
             chunk = add_metadata(chunk, song_details)
             while chunk:
                 yield chunk
@@ -131,7 +134,7 @@ def fetch_song_location():
 
         json_response = jsonify(response)
         json_response.status_code = 200
-        print('returning file')
+        app.logger.info('returning file')
         # return send_file('../' + song_title + '.mp3')
         return Response(
             generate(song_details.get('url')),

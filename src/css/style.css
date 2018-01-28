@@ -53,6 +53,17 @@ button {
   cursor: pointer;
 }
 
+.song-cards {
+  margin: 10px 0;
+  text-align: center;
+}
+
+.song-card {
+  display: flex;
+  margin: 10px 0;
+  background-color: #fff;
+}
+
 /*
 1. http://www.vikaskbh.com/how-to-style-html-form-fields-using-css-3-linear-gradient-function/
 2. https://www.mageewp.com/style-your-wordpress-themes-comment-form.html

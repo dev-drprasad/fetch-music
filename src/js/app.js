@@ -62,10 +62,10 @@ export default class App extends Component {
     if (this.state.results.length === 0) return <div>no results</div>;
     return this.state.results.map((item, i) => {
       return (
-        <div key={i} style={{ display: 'flex', margin: 10, backgroundColor: '#fff' }}>
+        <div key={i} className="song-card">
           <div style={{ background: `url(${item.albumart})`, width: 120, height: 120 }} />
           <div style={{ padding: 10 }}>
-            <h3 onClick={() => this.handleSongSelection(item)}><a href="#">{item.title}</a></h3>
+            <h3><a href={`http://${API_HOST}/api/song?id=${item.url}`} target="_blank">{item.title}</a></h3>
             <p>{item.artist}</p>
             <p>{item.link}</p>
           </div>
@@ -81,7 +81,7 @@ export default class App extends Component {
           <input type="text" name="search" onChange={this.handleSearchTermChange} value={this.state.searchTerm} />
           <button type="submit">search</button>
         </form>
-        <div style={{ margin: 10, textAlign: 'center' }}>
+        <div className="song-cards">
           {this.renderSearchResults()}
         </div>
       </div>
